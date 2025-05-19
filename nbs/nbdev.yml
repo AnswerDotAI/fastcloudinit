@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "fastcloudinit"
+  site-url: "https://AnswerDotAI.github.io/fastcloudinit"
+  description: "Simplified opinionated cloud init for ubuntu"
+  repo-branch: main
+  repo-url: "https://github.com/AnswerDotAI/fastcloudinit"
