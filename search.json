@@ -1,0 +1,42 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fastcloudinit",
+    "section": "",
+    "text": "Install from pypi\n$ pip install fastcloudinit",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fastcloudinit",
+    "section": "",
+    "text": "Install from pypi\n$ pip install fastcloudinit",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "fastcloudinit",
+    "section": "How to use",
+    "text": "How to use\nSee the core API docs for details.\nThis has only been tested on Hetzner cloud so far.",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "API",
+    "section": "",
+    "text": "from fastcore.test import test_eq,test_fail\nfrom jsonschema import ValidationError\n\n\nsource\n\nufw\n\n ufw (logging='off', def_incoming='deny', def_outgoing='allow',\n      internal=None, **allows)\n\n\nufw(internal=\"enp7s0\", OpenSSH=22)\n\n['ufw default deny incoming',\n 'ufw default allow outgoing',\n 'ufw logging off',\n 'ufw allow 22/tcp',\n 'ufw allow in on enp7s0',\n 'ufw --force enable']\n\n\n\nsource\n\n\nuser\n\n user (name, pub_keys, groups=None, shell='/bin/bash', sudo=True)\n\n\nuser('jph', 'mykey', 'docker')\n\n{'name': 'jph',\n 'groups': ['docker', 'sudo'],\n 'shell': '/bin/bash',\n 'sudo': ['ALL=(ALL) NOPASSWD:ALL'],\n 'ssh_authorized_keys': ['mykey']}\n\n\n\nsource\n\n\nsource\n\n source (url, keyid, keyserver)\n\n\ndsource = source(\"https://download.docker.com/linux/ubuntu\",\n                 keyid=\"9DC858229FC7DD38854AE2D88D81803C0EBFCD88\",\n                 keyserver=\"https://download.docker.com/linux/ubuntu/gpg\")\ndsource\n\n{'source': 'deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu $RELEASE stable',\n 'keyid': '9DC858229FC7DD38854AE2D88D81803C0EBFCD88',\n 'keyserver': 'https://download.docker.com/linux/ubuntu/gpg'}\n\n\n\nsource\n\n\napt\n\n apt (unattended=False, autoclean=30, email='', auto_reboot=False,\n      **sources)\n\n\napt(docker=dsource)\n\n{'apt': {'conf': 'APT::Periodic::Update-Package-Lists \"1\";\\nAPT::Periodic::Download-Upgradeable-Packages \"1\";\\nAPT::Periodic::AutocleanInterval \"7\";\\nAPT::Periodic::Unattended-Upgrade \"0\";\\nUnattended-Upgrade::Automatic-Reboot \"false\";\\n',\n  'sources': {'docker': {'source': 'deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu $RELEASE stable',\n    'keyid': '9DC858229FC7DD38854AE2D88D81803C0EBFCD88',\n    'keyserver': 'https://download.docker.com/linux/ubuntu/gpg'}}}}\n\n\n\nsource\n\n\nsystemd\n\n systemd (items)\n\n\nsystemd({\"systemd-journald.service\":\"[Journal]\\nSystemMaxUse=50M\\n\"})\n\n[{'path': '/etc/systemd/system/systemd-journald.service.d/override.conf',\n  'owner': 'root:root',\n  'permissions': '0644',\n  'content': '[Journal]\\nSystemMaxUse=50M\\n'}]\n\n\n\nsource\n\n\nlog_rotate\n\n log_rotate (freq='weekly', num_keep=7, fname='00-cloud-init-global')\n\n\nsource\n\n\nphone_home\n\n phone_home (url)\n\n\nsource\n\n\nreboot\n\n reboot (enable=True, message='Rebooting')\n\n\nsource\n\n\nmounts\n\n mounts (devices)\n\n\nsource\n\n\nruncmd\n\n runcmd (cmds)\n\n\ndef cc_validate(d):\n    vsc = xget('https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json').text\n    validate(d, schema=json.loads(vsc))\n\n\nsamp = '''#cloud-config\nhostname: example-host\nfqdn: example-host.example.com\n# User setup configuration\nusers:\n  - name: exampleuser\n    gecos: Example User\n    sudo: ['ALL=(ALL) NOPASSWD:ALL']'''\ncc_validate(yaml.safe_load(samp))\n\nThis example has an intentional key error (“hostna” instead of “hostname”):\n\nsamp = '''#cloud-config\nhostna: example-host\nfqdn: example-host.example.com'''\ntry: cc_validate(yaml.safe_load(samp))\nexcept ValidationError: pass\nelse: raise Exception('Expected validation error')\n\n\nsource\n\n\ncloud_init_base\n\n cloud_init_base (hostname, packages=None, check=True, **kw)\n\n\nsource\n\n\ncloud_init_config\n\n cloud_init_config (hostname, username, pub_keys, email='', groups=None,\n                    internal=None, cmds=None, devices=None,\n                    ping_host=None, packages=None, dropins=None,\n                    **sources)\n\n\npackages = [ \"unattended-upgrades\", \"vim-nox\", \"python3\", \"rsync\", \"ubuntu-drivers-common\", \"python3-pip\", \"ack\", \"lsyncd\", \"wget\", \"bzip2\", \"ca-certificates\", \"git\", \"build-essential\", \"software-properties-common\", \"curl\", \"grep\", \"sed\", \"dpkg\", \"tmux\", \"less\", \"htop\", \"openssh-client\", \"python-is-python3\", \"python3-dev\", \"cron\", \"gnupg\", \"docker-ce\", \"docker-ce-cli\", \"containerd.io\", \"docker-buildx-plugin\", \"docker-compose-plugin\" ]\n\ndsource = source(\n    \"https://download.docker.com/linux/ubuntu\", \n    keyid=\"9DC858229FC7DD38854AE2D88D81803C0EBFCD88\", \n    keyserver=\"https://download.docker.com/linux/ubuntu/gpg\")\ndevices = [ ['mydevice', \"/data\", \"ext4\", \"defaults,nofail\", \"0\", \"0\"] ]\ndropins = {\"systemd-journald.service\":\"[Journal]\\nSystemMaxUse=250M\\n\"}\n\nres = cloud_init_config('myhost', 'jph', 'mykey', 'j@answer.ai', dropins=dropins, groups=\"docker\", internal=\"enp7s0\",\n                        devices=devices, ping_host='https://ping.me', packages=packages, docker=dsource)\nprint(res[:50])\n\n#cloud-config\nhostname: myhost\npreserve_hostname:",
+    "crumbs": [
+      "API"
+    ]
+  }
+]
