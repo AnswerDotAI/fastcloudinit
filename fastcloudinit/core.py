@@ -6,8 +6,11 @@ __all__ = ['ufw', 'user', 'source', 'apt', 'systemd', 'log_rotate', 'phone_home'
 
 # %% ../nbs/00_core.ipynb
 from fastcore.utils import *
-import fastcore.xtras, yaml
 from textwrap import dedent
+from jsonschema import validate
+from httpx import get as xget
+
+import fastcore.xtras, yaml, json
 
 # %% ../nbs/00_core.ipynb
 def ufw(logging="off", def_incoming="deny", def_outgoing="allow", internal=None, **allows):
@@ -88,12 +91,13 @@ def runcmd(cmds):
     return dict(runcmd=cmds)
 
 # %% ../nbs/00_core.ipynb
-def cloud_init_base(hostname, packages=None, **kw):
+def cloud_init_base(hostname, packages=None, check=True, **kw):
     cfg = dict(
         hostname=hostname, preserve_hostname=False,
         packages=listify(packages), package_update=True, package_upgrade=True,
         disable_root=True, ssh_pwauth=False, **kw
     )
+    if check: cc_validate(cfg)
     return "#cloud-config\n" + yaml.safe_dump(cfg, sort_keys=False, width=1_000_000)
 
 # %% ../nbs/00_core.ipynb
