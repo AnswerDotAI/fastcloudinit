@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 0.0.5
+
+### Bugs Squashed
+
+- `cc_validate` not exported ([#4](https://github.com/AnswerDotAI/fastcloudinit/issues/4))
+
+
 ## 0.0.4
 
 ### New Features
