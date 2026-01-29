@@ -1,0 +1,42 @@
+[
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "API",
+    "section": "",
+    "text": "from fastcore.test import test_eq,test_fail\nfrom jsonschema import ValidationError\n\n\nsource\n\nufw\n\ndef ufw(\n    logging:str='off', def_incoming:str='deny', def_outgoing:str='allow', internal:NoneType=None, allows:VAR_KEYWORD\n):\n\n\nufw(internal=\"enp7s0\", OpenSSH=22)\n\n['ufw default deny incoming',\n 'ufw default allow outgoing',\n 'ufw logging off',\n 'ufw allow 22/tcp',\n 'ufw allow in on enp7s0',\n 'ufw --force enable']\n\n\n\nsource\n\n\nuser\n\ndef user(\n    name, pub_keys, groups:NoneType=None, shell:str='/bin/bash', sudo:bool=True\n):\n\n\nuser('jph', 'mykey', 'docker')\n\n{'name': 'jph',\n 'groups': ['docker', 'sudo'],\n 'shell': '/bin/bash',\n 'sudo': ['ALL=(ALL) NOPASSWD:ALL'],\n 'ssh_authorized_keys': ['mykey']}\n\n\n\nsource\n\n\nsource\n\ndef source(\n    url, keyid, keyserver\n):\n\n\ndsource = source(\"https://download.docker.com/linux/ubuntu\",\n                 keyid=\"9DC858229FC7DD38854AE2D88D81803C0EBFCD88\",\n                 keyserver=\"https://download.docker.com/linux/ubuntu/gpg\")\ndsource\n\n{'source': 'deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu $RELEASE stable',\n 'keyid': '9DC858229FC7DD38854AE2D88D81803C0EBFCD88',\n 'keyserver': 'https://download.docker.com/linux/ubuntu/gpg'}\n\n\n\nsource\n\n\napt\n\ndef apt(\n    unattended:bool=False, autoclean:int=30, email:str='', auto_reboot:bool=False, sources:VAR_KEYWORD\n):\n\n\napt(docker=dsource)\n\n{'apt': {'conf': 'APT::Periodic::Update-Package-Lists \"1\";\\nAPT::Periodic::Download-Upgradeable-Packages \"1\";\\nAPT::Periodic::AutocleanInterval \"7\";\\nAPT::Periodic::Unattended-Upgrade \"0\";\\nUnattended-Upgrade::Automatic-Reboot \"false\";\\n',\n  'sources': {'docker': {'source': 'deb [signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu $RELEASE stable',\n    'keyid': '9DC858229FC7DD38854AE2D88D81803C0EBFCD88',\n    'keyserver': 'https://download.docker.com/linux/ubuntu/gpg'}}}}\n\n\n\nsource\n\n\nsystemd\n\ndef systemd(\n    items\n):\n\n\nsystemd({\"systemd-journald.service\":\"[Journal]\\nSystemMaxUse=50M\\n\"})\n\n[{'path': '/etc/systemd/system/systemd-journald.service.d/override.conf',\n  'owner': 'root:root',\n  'permissions': '0644',\n  'content': '[Journal]\\nSystemMaxUse=50M\\n'}]\n\n\n\nsource\n\n\nlog_rotate\n\ndef log_rotate(\n    freq:str='weekly', num_keep:int=7, fname:str='00-cloud-init-global'\n):\n\n\nsource\n\n\nphone_home\n\ndef phone_home(\n    url\n):\n\n\nsource\n\n\nreboot\n\ndef reboot(\n    enable:bool=True, message:str='Rebooting'\n):\n\n\nsource\n\n\nmounts\n\ndef mounts(\n    devices\n):\n\n\nsource\n\n\nruncmd\n\ndef runcmd(\n    cmds\n):\n\n\nsource\n\n\ncc_validate\n\ndef cc_validate(\n    d\n):\n\n\nsamp = '''#cloud-config\nhostname: example-host\nfqdn: example-host.example.com\n# User setup configuration\nusers:\n  - name: exampleuser\n    gecos: Example User\n    sudo: ['ALL=(ALL) NOPASSWD:ALL']'''\ncc_validate(yaml.safe_load(samp))\n\nThis example has an intentional key error (“hostna” instead of “hostname”):\n\nsamp = '''#cloud-config\nhostna: example-host\nfqdn: example-host.example.com'''\ntry: cc_validate(yaml.safe_load(samp))\nexcept ValidationError: pass\nelse: raise Exception('Expected validation error')\n\n\nsource\n\n\ncloud_init_base\n\ndef cloud_init_base(\n    hostname, packages:NoneType=None, check:bool=True, kw:VAR_KEYWORD\n):\n\n\nsource\n\n\ncloud_init_config\n\ndef cloud_init_config(\n    hostname, username, pub_keys, email:str='', groups:NoneType=None, internal:NoneType=None, cmds:NoneType=None,\n    devices:NoneType=None, ping_host:NoneType=None, packages:NoneType=None, dropins:NoneType=None,\n    sources:VAR_KEYWORD\n):\n\n\npackages = [ \"unattended-upgrades\", \"vim-nox\", \"python3\", \"rsync\", \"ubuntu-drivers-common\", \"python3-pip\", \"ack\", \"lsyncd\", \"wget\", \"bzip2\", \"ca-certificates\", \"git\", \"build-essential\", \"software-properties-common\", \"curl\", \"grep\", \"sed\", \"dpkg\", \"tmux\", \"less\", \"htop\", \"openssh-client\", \"python-is-python3\", \"python3-dev\", \"cron\", \"gnupg\", \"docker-ce\", \"docker-ce-cli\", \"containerd.io\", \"docker-buildx-plugin\", \"docker-compose-plugin\" ]\n\ndsource = source(\n    \"https://download.docker.com/linux/ubuntu\", \n    keyid=\"9DC858229FC7DD38854AE2D88D81803C0EBFCD88\", \n    keyserver=\"https://download.docker.com/linux/ubuntu/gpg\")\ndevices = [ ['mydevice', \"/data\", \"ext4\", \"defaults,nofail\", \"0\", \"0\"] ]\ndropins = {\"systemd-journald.service\":\"[Journal]\\nSystemMaxUse=250M\\n\"}\n\nres = cloud_init_config('myhost', 'jph', 'mykey', 'j@answer.ai', dropins=dropins, groups=\"docker\", internal=\"enp7s0\",\n                        devices=devices, ping_host='https://ping.me', packages=packages, docker=dsource)\nprint(res[:50])\n\n#cloud-config\nhostname: myhost\npreserve_hostname:",
+    "crumbs": [
+      "API"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "fastcloudinit",
+    "section": "",
+    "text": "Install from pypi\n$ pip install fastcloudinit",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  },
+  {
+    "objectID": "index.html#usage",
+    "href": "index.html#usage",
+    "title": "fastcloudinit",
+    "section": "",
+    "text": "Install from pypi\n$ pip install fastcloudinit",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "fastcloudinit",
+    "section": "How to use",
+    "text": "How to use\nSee the core API docs for details.\nThis has only been tested on Hetzner cloud so far.",
+    "crumbs": [
+      "fastcloudinit"
+    ]
+  }
+]
