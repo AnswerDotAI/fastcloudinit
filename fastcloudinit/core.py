@@ -13,6 +13,7 @@ from jsonschema import validate
 from httpx import get as xget
 
 import fastcore.xtras, yaml, json
+from functools import cache
 
 # %% ../nbs/00_core.ipynb #276cbc1e
 def ufw(logging="off", def_incoming="deny", def_outgoing="allow", internal=None, **allows):
@@ -40,11 +41,11 @@ def apt(unattended=False, autoclean=30, email='', auto_reboot=False, **sources):
     apt_conf = f"""\
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Download-Upgradeable-Packages "1";
-APT::Periodic::AutocleanInterval "7";
+APT::Periodic::AutocleanInterval "{autoclean}";
 APT::Periodic::Unattended-Upgrade "{unattended}";
 Unattended-Upgrade::Automatic-Reboot "{auto_reboot}";
 """
-    if email: apt_conf += 'Unattended-Upgrade::Mail "{email}";\n'
+    if email: apt_conf += f'Unattended-Upgrade::Mail "{email}";\n'
     res = dict(conf=apt_conf)
     if sources: res['sources'] = sources
     return dict(apt=res)
@@ -93,9 +94,12 @@ def runcmd(cmds):
     return dict(runcmd=cmds)
 
 # %% ../nbs/00_core.ipynb #0f608fa1
+@cache
+def _cc_schema():
+    return json.loads(xget('https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json').text)
+
 def cc_validate(d):
-    vsc = xget('https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json').text
-    validate(d, schema=json.loads(vsc))
+    validate(d, schema=_cc_schema())
 
 # %% ../nbs/00_core.ipynb #b5634371
 def cloud_init_base(hostname, packages=None, check=True, **kw):
@@ -116,7 +120,7 @@ def cloud_init_config(hostname, username, pub_keys, email='', groups=None, inter
         hostname, packages=packages,
         users=[user(username, pub_keys, groups=groups)],
         **runcmd(cmds),
-        **apt(**sources),
+        **apt(email=email, **sources),
         write_files=[ log_rotate(), *systemd(dropins or {}) ],
         **mounts(devices),
         **phone_home(ping_host),
